@@ -84,11 +84,51 @@ CUSTOMER_CITIES = {
     "Pune": (18.5204, 73.8567),
 }
 
+CUSTOMER_PROFILES = {
+    "Aarav Sharma - Retail": {
+        "customer_city": "New Delhi",
+        "gender": "M",
+        "card_segment": "Classic",
+        "device_trust": 74,
+        "velocity_24h": 2,
+        "international_txn": False,
+        "card_number": "4539682995824395",
+        "card_mode": "Credit Card",
+    },
+    "Neha Verma - Premium": {
+        "customer_city": "Mumbai",
+        "gender": "F",
+        "card_segment": "Gold",
+        "device_trust": 66,
+        "velocity_24h": 4,
+        "international_txn": False,
+        "card_number": "5123456789012345",
+        "card_mode": "Credit Card",
+    },
+    "Rohan Iyer - Travel Heavy": {
+        "customer_city": "Bengaluru",
+        "gender": "M",
+        "card_segment": "Platinum",
+        "device_trust": 58,
+        "velocity_24h": 5,
+        "international_txn": True,
+        "card_number": "6011222233334444",
+        "card_mode": "Debit Card",
+    },
+}
+
 CARD_NETWORKS = {
     "4": "Visa",
     "5": "Mastercard",
     "6": "RuPay / Discover",
     "3": "American Express",
+}
+
+BANK_BY_PREFIX = {
+    "4": "Horizon Bank",
+    "5": "Zenith Bank",
+    "6": "National Secure Bank",
+    "3": "Elite Capital Bank",
 }
 
 CARD_SEGMENTS = {
@@ -122,14 +162,20 @@ def inject_css() -> None:
         <style>
             .stApp {
                 background:
-                    radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 28%),
-                    radial-gradient(circle at top right, rgba(16, 185, 129, 0.16), transparent 22%),
-                    linear-gradient(145deg, #07111f 0%, #0f172a 45%, #111827 100%);
+                    radial-gradient(circle at top left, rgba(8, 145, 178, 0.22), transparent 26%),
+                    radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 24%),
+                    radial-gradient(circle at bottom left, rgba(34, 197, 94, 0.10), transparent 18%),
+                    linear-gradient(150deg, #030712 0%, #08111f 35%, #0f172a 100%);
                 color: #e5eef9;
+                font-family: "Segoe UI", "Trebuchet MS", sans-serif;
             }
             .block-container {
-                padding-top: 1.2rem;
-                padding-bottom: 2rem;
+                padding-top: 1rem;
+                padding-bottom: 2.2rem;
+            }
+            [data-testid="stSidebar"] {
+                background: linear-gradient(180deg, rgba(2, 6, 23, 0.95), rgba(15, 23, 42, 0.92));
+                border-right: 1px solid rgba(148, 163, 184, 0.12);
             }
             .hero-shell, .glass-card, .alert-card, .kpi-card {
                 border: 1px solid rgba(148, 163, 184, 0.18);
@@ -141,11 +187,13 @@ def inject_css() -> None:
                 border-radius: 28px;
                 background: linear-gradient(140deg, rgba(8, 47, 73, 0.82), rgba(15, 23, 42, 0.90));
                 margin-bottom: 1rem;
+                position: relative;
+                overflow: hidden;
             }
             .glass-card {
                 padding: 22px;
                 border-radius: 24px;
-                background: rgba(15, 23, 42, 0.72);
+                background: linear-gradient(145deg, rgba(15, 23, 42, 0.82), rgba(17, 24, 39, 0.72));
                 margin-bottom: 1rem;
             }
             .kpi-card {
@@ -183,15 +231,42 @@ def inject_css() -> None:
                 line-height: 1.65;
                 max-width: 900px;
             }
+            .hero-strip {
+                display:grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+                margin-top: 18px;
+            }
+            .hero-pill {
+                padding: 12px 14px;
+                border-radius: 18px;
+                background: rgba(255,255,255,0.06);
+                border: 1px solid rgba(148, 163, 184, 0.14);
+                color: #dbeafe;
+                font-size: 0.9rem;
+            }
             div[data-testid="stTabs"] button {
                 border-radius: 999px;
                 padding: 0.55rem 1rem;
+            }
+            div[data-testid="stTabs"] button[aria-selected="true"] {
+                background: linear-gradient(135deg, rgba(14, 165, 233, 0.28), rgba(37, 99, 235, 0.22));
             }
             div[data-testid="stMetric"] {
                 background: rgba(255,255,255,0.03);
                 border: 1px solid rgba(148, 163, 184, 0.08);
                 border-radius: 18px;
                 padding: 12px;
+            }
+            .signal-row {
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                padding: 12px 14px;
+                border-radius: 16px;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(148,163,184,0.08);
+                margin-bottom: 10px;
             }
             .footer {
                 color: #94a3b8;
@@ -216,6 +291,13 @@ def infer_network(card_number: str) -> str:
     return CARD_NETWORKS.get(number[0], "Unknown")
 
 
+def infer_bank(card_number: str) -> str:
+    number = "".join(ch for ch in str(card_number) if ch.isdigit())
+    if not number:
+        return "Unknown Bank"
+    return BANK_BY_PREFIX.get(number[0], "Unknown Bank")
+
+
 def mask_card(card_number: str) -> str:
     digits = "".join(ch for ch in str(card_number) if ch.isdigit())
     if len(digits) < 4:
@@ -223,8 +305,72 @@ def mask_card(card_number: str) -> str:
     return f"•••• •••• •••• {digits[-4:]}"
 
 
+def risk_palette(risk_percent: float) -> tuple[str, str]:
+    if risk_percent >= 75:
+        return "#ef4444", "rgba(127, 29, 29, 0.55)"
+    if risk_percent >= 50:
+        return "#f97316", "rgba(124, 45, 18, 0.52)"
+    if risk_percent >= 30:
+        return "#eab308", "rgba(113, 63, 18, 0.42)"
+    return "#22c55e", "rgba(20, 83, 45, 0.42)"
+
+
+def render_card_visual(title: str, card_number: str, card_mode: str, risk_percent: float, segment: str) -> None:
+    accent, surface = risk_palette(risk_percent)
+    network = infer_network(card_number)
+    bank = infer_bank(card_number)
+    st.markdown(
+        f"""
+        <div style="
+            border-radius: 28px;
+            padding: 22px;
+            min-height: 220px;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255,255,255,0.18), transparent 24%),
+                radial-gradient(circle at 85% 18%, rgba(255,255,255,0.14), transparent 16%),
+                linear-gradient(145deg, {surface}, rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 20px 50px rgba(2, 8, 23, 0.34);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        ">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <div style="font-size:0.78rem; letter-spacing:0.16em; color:#bfdbfe; text-transform:uppercase;">{title}</div>
+                    <div style="font-size:1.25rem; font-weight:800; margin-top:8px;">{bank}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="display:inline-block; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.08); color:#f8fafc; font-size:0.82rem;">
+                        {card_mode}
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:28px; width:58px; height:42px; border-radius:12px; background:linear-gradient(160deg, rgba(252,211,77,0.9), rgba(161,98,7,0.85));"></div>
+            <div style="margin-top:20px; font-size:1.55rem; letter-spacing:0.14em; font-weight:700;">{mask_card(card_number)}</div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:24px;">
+                <div>
+                    <div style="font-size:0.75rem; color:#cbd5e1;">Segment</div>
+                    <div style="font-size:1rem; font-weight:700;">{segment}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem; color:#cbd5e1;">Network</div>
+                    <div style="font-size:1rem; font-weight:700; text-align:right;">{network}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem; color:#cbd5e1;">Risk</div>
+                    <div style="font-size:1rem; font-weight:700; color:{accent}; text-align:right;">{risk_percent:.2f}%</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def initialize_state() -> None:
     defaults = {
+        "customer_profile": list(CUSTOMER_PROFILES.keys())[0],
         "merchant": list(MERCHANT_PROFILES.keys())[0],
         "category": MERCHANT_PROFILES[list(MERCHANT_PROFILES.keys())[0]]["category"],
         "amt": 2400.0,
@@ -269,6 +415,19 @@ def sync_from_category() -> None:
             break
 
 
+def sync_from_customer_profile() -> None:
+    profile = CUSTOMER_PROFILES[st.session_state["customer_profile"]]
+    st.session_state["customer_city"] = profile["customer_city"]
+    st.session_state["gender"] = profile["gender"]
+    st.session_state["card_segment"] = profile["card_segment"]
+    st.session_state["device_trust"] = profile["device_trust"]
+    st.session_state["velocity_24h"] = profile["velocity_24h"]
+    st.session_state["international_txn"] = profile["international_txn"]
+    st.session_state["card_number"] = profile["card_number"]
+    st.session_state["card_mode"] = profile["card_mode"]
+    sync_customer_city()
+
+
 def sync_customer_city() -> None:
     lat, lon = CUSTOMER_CITIES[st.session_state["customer_city"]]
     st.session_state["lat"] = lat
@@ -286,6 +445,12 @@ def card_mode_from_number(card_number: str) -> str:
 
 def sync_from_card_number() -> None:
     st.session_state["card_mode"] = card_mode_from_number(st.session_state["card_number"])
+
+
+def sync_live_intelligence() -> None:
+    sync_from_card_number()
+    if st.session_state["category"] in CATEGORY_DEFAULTS and st.session_state["amt"] == 0:
+        st.session_state["amt"] = CATEGORY_DEFAULTS[st.session_state["category"]]
 
 
 def feature_frame() -> pd.DataFrame:
@@ -323,10 +488,16 @@ def compute_risk() -> dict:
 
     risk_probability = model_probability
     reasons = []
+    expected_amount = CATEGORY_DEFAULTS.get(st.session_state["category"], st.session_state["amt"] or 1)
+    amount_ratio = float(st.session_state["amt"]) / max(expected_amount, 1)
+    digits = "".join(ch for ch in str(st.session_state["card_number"]) if ch.isdigit())
 
     if st.session_state["amt"] > 10000:
         risk_probability += 0.08
         reasons.append("Amount is unusually high for normal retail activity.")
+    if amount_ratio >= 2.2:
+        risk_probability += 0.06
+        reasons.append("Amount is far above the normal category spending baseline.")
     if distance > 120:
         risk_probability += 0.10
         reasons.append("Merchant and customer locations are far apart.")
@@ -345,6 +516,15 @@ def compute_risk() -> dict:
     if st.session_state["card_mode"] == "Debit Card":
         risk_probability += 0.03
         reasons.append("Debit card transactions are checked with stricter protection rules.")
+    if len(digits) not in {15, 16}:
+        risk_probability += 0.05
+        reasons.append("Card number pattern looks incomplete or unusual.")
+    if st.session_state["category"] in {"shopping_net", "misc_net"} and st.session_state["device_trust"] < 55:
+        risk_probability += 0.05
+        reasons.append("Online transaction from a weak-trust device needs extra review.")
+    if st.session_state["day"] in {1, 28, 29, 30, 31} and st.session_state["amt"] > 8000:
+        risk_probability += 0.03
+        reasons.append("High-value end-of-cycle spending pattern is being monitored closely.")
     if not reasons:
         reasons.append("Behavior is close to known normal transaction patterns.")
 
@@ -463,6 +643,9 @@ def score_batch(df: pd.DataFrame) -> pd.DataFrame:
     results = []
     for _, row in df.iterrows():
         distance = calculate_distance(row["lat"], row["lon"], row["merch_lat"], row["merch_lon"])
+        digits = "".join(ch for ch in str(row["card_number"]) if ch.isdigit())
+        expected_amount = CATEGORY_DEFAULTS.get(row["category"], float(row["amt"]) or 1)
+        amount_ratio = float(row["amt"]) / max(expected_amount, 1)
         model_input = pd.DataFrame(
             [
                 {
@@ -484,6 +667,8 @@ def score_batch(df: pd.DataFrame) -> pd.DataFrame:
         adjusted = base_probability
         if float(row["amt"]) > 10000:
             adjusted += 0.08
+        if amount_ratio >= 2.2:
+            adjusted += 0.06
         if distance > 120:
             adjusted += 0.10
         if int(row["velocity_24h"]) >= 6:
@@ -494,6 +679,10 @@ def score_batch(df: pd.DataFrame) -> pd.DataFrame:
             adjusted += 0.07
         if row["card_mode"] == "Debit Card":
             adjusted += 0.03
+        if len(digits) not in {15, 16}:
+            adjusted += 0.05
+        if row["category"] in {"shopping_net", "misc_net"} and int(row["device_trust"]) < 55:
+            adjusted += 0.05
         adjusted = max(0.01, min(adjusted, 0.99))
 
         results.append(
@@ -523,6 +712,11 @@ st.markdown(
             A professional banking-style screening dashboard for credit and debit card transactions.
             It combines your trained fraud model with extra rule-based intelligence, automatic form filling,
             batch screening, and analyst-friendly dashboards for project demo, viva, and presentation.
+        </div>
+        <div class="hero-strip">
+            <div class="hero-pill">Live card screening with auto-intake</div>
+            <div class="hero-pill">Credit + debit card fraud monitoring</div>
+            <div class="hero-pill">Hybrid ML + behavioral risk scoring</div>
         </div>
     </div>
     """,
@@ -587,6 +781,13 @@ if sidebar_page == "Executive Overview":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with right:
+        render_card_visual(
+            "Protected Card",
+            st.session_state["card_number"],
+            st.session_state["card_mode"],
+            risk_snapshot["risk_percent"],
+            st.session_state["card_segment"],
+        )
         st.markdown("<div class='alert-card'>", unsafe_allow_html=True)
         st.subheader("Recommended Action")
         st.write(risk_snapshot["recommendation"])
@@ -601,13 +802,19 @@ if sidebar_page == "Executive Overview":
 
 elif sidebar_page == "Live Detection":
     st.subheader("Live Transaction Detection")
-    tabs = st.tabs(["Smart Entry", "Risk Result", "Model Payload"])
+    tabs = st.tabs(["Smart Intake", "Fraud Decision", "Analyst View", "Model Payload"])
 
     with tabs[0]:
-        c1, c2 = st.columns([1.2, 1])
+        c1, c2 = st.columns([1.05, 0.95])
         with c1:
             st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-            st.markdown("#### Auto-Populating Transaction Input")
+            st.markdown("#### Auto-Populating Transaction Intake")
+            st.selectbox(
+                "Customer Profile",
+                list(CUSTOMER_PROFILES.keys()),
+                key="customer_profile",
+                on_change=sync_from_customer_profile,
+            )
             st.selectbox(
                 "Merchant",
                 list(MERCHANT_PROFILES.keys()),
@@ -630,11 +837,21 @@ elif sidebar_page == "Live Detection":
                 "Card Number",
                 key="card_number",
                 on_change=sync_from_card_number,
-                help="Entering the card number automatically suggests credit/debit mode based on the prefix.",
+                help="Card number automatically suggests bank, network, and credit/debit mode from the prefix.",
             )
             st.selectbox("Card Mode", ["Credit Card", "Debit Card"], key="card_mode")
             st.selectbox("Customer Gender", ["M", "F"], key="gender")
             st.selectbox("Card Segment", list(CARD_SEGMENTS.keys()), key="card_segment")
+            quick1, quick2, quick3 = st.columns(3)
+            if quick1.button("Retail Preset", use_container_width=True):
+                st.session_state["category"] = "grocery_pos"
+                sync_from_category()
+            if quick2.button("E-Commerce Preset", use_container_width=True):
+                st.session_state["category"] = "shopping_net"
+                sync_from_category()
+            if quick3.button("Travel Preset", use_container_width=True):
+                st.session_state["category"] = "travel"
+                st.session_state["amt"] = CATEGORY_DEFAULTS["travel"]
             st.markdown("</div>", unsafe_allow_html=True)
 
         with c2:
@@ -654,6 +871,25 @@ elif sidebar_page == "Live Detection":
             st.markdown("</div>", unsafe_allow_html=True)
 
         risk = compute_risk()
+        a1, a2 = st.columns([1, 1])
+        with a1:
+            render_card_visual(
+                "Primary Card",
+                st.session_state["card_number"],
+                st.session_state["card_mode"],
+                risk["risk_percent"],
+                st.session_state["card_segment"],
+            )
+        with a2:
+            st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+            st.subheader("Live Intake Summary")
+            st.write(f"Customer city: {st.session_state['customer_city']}")
+            st.write(f"Merchant city: {st.session_state['merchant_city']}")
+            st.write(f"Bank: {infer_bank(st.session_state['card_number'])}")
+            st.write(f"Network: {infer_network(st.session_state['card_number'])}")
+            st.write(f"Card mode: {st.session_state['card_mode']}")
+            st.write(f"Current risk: {risk['risk_percent']}%")
+            st.markdown("</div>", unsafe_allow_html=True)
 
     with tabs[1]:
         risk = compute_risk()
@@ -687,6 +923,42 @@ elif sidebar_page == "Live Detection":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with tabs[2]:
+        risk = compute_risk()
+        left, right = st.columns([1.15, 0.85])
+        with left:
+            st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+            st.subheader("Analyst Investigation Panel")
+            signal_rows = [
+                ("Amount deviation vs category", f"{(float(st.session_state['amt']) / max(CATEGORY_DEFAULTS.get(st.session_state['category'], 1), 1)):.2f}x"),
+                ("Device trust score", st.session_state["device_trust"]),
+                ("24h velocity", st.session_state["velocity_24h"]),
+                ("Geo distance", f"{risk['distance']:.2f} km"),
+                ("Card-network identified", infer_network(st.session_state["card_number"])),
+            ]
+            for label, value in signal_rows:
+                st.markdown(
+                    f"<div class='signal-row'><span>{label}</span><strong>{value}</strong></div>",
+                    unsafe_allow_html=True,
+                )
+            st.markdown("</div>", unsafe_allow_html=True)
+        with right:
+            render_card_visual(
+                "Analyst Snapshot",
+                st.session_state["card_number"],
+                st.session_state["card_mode"],
+                risk["risk_percent"],
+                st.session_state["card_segment"],
+            )
+
+            st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+            st.subheader("Action Workflow")
+            st.write("• Step 1: validate device and geo consistency")
+            st.write("• Step 2: confirm whether amount matches customer pattern")
+            st.write("• Step 3: trigger OTP or account hold for high-risk alerts")
+            st.write("• Step 4: escalate to fraud analyst if risk stays above 50%")
+            st.markdown("</div>", unsafe_allow_html=True)
+
+    with tabs[3]:
         risk = compute_risk()
         st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
         st.subheader("Model Input Payload")
