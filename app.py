@@ -278,15 +278,10 @@ def apply_theme(theme: str) -> None:
                 color: {colors["text"]};
             }}
             [data-testid="stSidebar"] {{
-<<<<<<< HEAD
                 display: none;
             }}
             [data-testid="collapsedControl"] {{
                 display: none;
-=======
-                background: {colors["sidebar"]};
-                border-right: 1px solid {colors["border"]};
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
             }}
             .block-container {{
                 padding-top: 1.1rem;
@@ -303,7 +298,6 @@ def apply_theme(theme: str) -> None:
                 padding: 24px;
                 margin-bottom: 1rem;
             }}
-<<<<<<< HEAD
             .topnav {{
                 position: sticky;
                 top: 0;
@@ -328,8 +322,6 @@ def apply_theme(theme: str) -> None:
                 font-weight: 700;
                 white-space: nowrap;
             }}
-=======
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
             .panel {{
                 background: {colors["surface"]};
                 border: 1px solid {colors["border"]};
@@ -337,7 +329,6 @@ def apply_theme(theme: str) -> None:
                 padding: 18px;
                 margin-bottom: 1rem;
             }}
-<<<<<<< HEAD
             .feature-card {{
                 background: {colors["surface"]};
                 border: 1px solid {colors["border"]};
@@ -349,8 +340,6 @@ def apply_theme(theme: str) -> None:
                 font-size: 1.5rem;
                 margin-bottom: 8px;
             }}
-=======
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
             .mini {{
                 background: {colors["surface_soft"]};
                 border: 1px solid {colors["border"]};
@@ -436,7 +425,6 @@ def apply_theme(theme: str) -> None:
                 color: {colors["danger"]};
                 font-weight: 800;
             }}
-<<<<<<< HEAD
             .alert-banner {{
                 background: rgba(220, 38, 38, 0.12);
                 border: 1px solid rgba(220, 38, 38, 0.35);
@@ -498,8 +486,6 @@ def apply_theme(theme: str) -> None:
                 font-size: 0.82rem;
                 margin-top: 6px;
             }}
-=======
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
         </style>
         """,
         unsafe_allow_html=True,
@@ -534,10 +520,7 @@ def calc_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 def init_state() -> None:
     defaults = {
         "theme_mode": "Dark",
-<<<<<<< HEAD
         "page": "🏠 Home",
-=======
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
         "customer_profile": "Aarav Sharma",
         "merchant": "Rippin Retail Hub",
         "category": "grocery_pos",
@@ -897,7 +880,6 @@ def score_batch(df: pd.DataFrame) -> pd.DataFrame:
 init_state()
 apply_theme(st.session_state["theme_mode"])
 
-<<<<<<< HEAD
 toolbar_left, toolbar_mid, toolbar_right = st.columns([1.1, 1.2, 0.7])
 with toolbar_left:
     st.text_input("Search", placeholder="Search sections, reports, FAQs", label_visibility="collapsed")
@@ -909,26 +891,11 @@ with toolbar_mid:
 with toolbar_right:
     st.selectbox("Theme", ["Dark", "Light"], key="theme_mode", label_visibility="collapsed")
 apply_theme(st.session_state["theme_mode"])
-=======
-with st.sidebar:
-    st.title("FraudShield 360")
-    st.caption("Advanced credit and debit card fraud intelligence dashboard")
-    st.selectbox("Theme", ["Dark", "Light"], key="theme_mode")
-    apply_theme(st.session_state["theme_mode"])
-    page = st.radio(
-        "Navigation",
-        ["Home", "Features", "Dashboard", "Reports", "Project Info", "Contact"],
-    )
-    st.markdown("---")
-    st.caption("Compliance simulation")
-    st.markdown('<div class="badge-row"><span class="badge">PCI DSS</span><span class="badge">GDPR</span><span class="badge">Masked Data</span></div>', unsafe_allow_html=True)
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
 
 
 risk = compute_risk()
 
 st.markdown(
-<<<<<<< HEAD
     f"""
     <div class="topnav">
         <div class="topnav-links">
@@ -954,15 +921,6 @@ st.markdown(
         <h1 style="margin:6px 0 8px 0;">FraudShield 360 🛡️</h1>
         <div class="helper">
            An intelligent fraud detection system for modern card payments with Analyst Dashboards, Explainable Alerts, Compliance Simulation and Scalable Transaction monitoring. 
-=======
-    """
-    <div class="hero">
-        <div class="eyebrow">Major Project Ready</div>
-        <h1 style="margin:6px 0 8px 0;">FraudShield 360</h1>
-        <div class="helper">
-            Hybrid fraud detection for credit and debit cards with explainable AI, batch monitoring,
-            compliance simulation, audit logging, and cleaner analyst dashboards.
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
         </div>
     </div>
     """,
@@ -970,7 +928,6 @@ st.markdown(
 )
 
 
-<<<<<<< HEAD
 if page == "🏠 Home":
     if risk["prediction"]:
         st.markdown(
@@ -1020,15 +977,6 @@ if page == "🏠 Home":
     f3.markdown("<div class='feature-card'><div class='feature-icon'>🧠</div><h4>Explainable AI</h4><div class='helper'>Clear reasons behind every flagged transaction including amount, location, and trust signals.</div></div>", unsafe_allow_html=True)
     f4.markdown("<div class='feature-card'><div class='feature-icon'>📈</div><h4>Scalability</h4><div class='helper'>Batch screening and operational simulation for 10k+ transactions per minute.</div></div>", unsafe_allow_html=True)
 
-=======
-if page == "Home":
-    c1, c2, c3, c4 = st.columns(4)
-    c1.markdown(f"<div class='kpi'><div class='eyebrow'>Current Risk</div><h2>{risk['risk_percent']}%</h2><div class='helper'>{risk['severity']} alert level</div></div>", unsafe_allow_html=True)
-    c2.markdown(f"<div class='kpi'><div class='eyebrow'>Model Score</div><h2>{risk['model_percent']}%</h2><div class='helper'>Pure ML confidence</div></div>", unsafe_allow_html=True)
-    c3.markdown(f"<div class='kpi'><div class='eyebrow'>Card Type</div><h2>{st.session_state['card_mode'].split()[0]}</h2><div class='helper'>{infer_network(st.session_state['card_number'])}</div></div>", unsafe_allow_html=True)
-    c4.markdown(f"<div class='kpi'><div class='eyebrow'>Distance</div><h2>{risk['distance']} km</h2><div class='helper'>Customer to merchant</div></div>", unsafe_allow_html=True)
-
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
     left, right = st.columns([1.2, 0.8])
     with left:
         st.markdown('<div class="panel">', unsafe_allow_html=True)
@@ -1052,7 +1000,6 @@ if page == "Home":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with right:
-<<<<<<< HEAD
         st.markdown('<div class="panel">', unsafe_allow_html=True)
         st.subheader("Compliance & Security")
         with st.expander("PCI DSS Badge", expanded=True):
@@ -1067,40 +1014,6 @@ elif page == "📊 Fraud Dashboard":
     st.subheader("Fraud Dashboard")
     if risk["prediction"]:
         st.error(f"Fraud detected in {st.session_state['merchant_city']} with {risk['risk_percent']}% hybrid risk.")
-=======
-        render_card("Protected Card", risk["risk_percent"])
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        st.subheader("Compliance & Security")
-        st.write("• Sensitive card details are masked in analyst views.")
-        st.write("• Audit trail logging is available for each fraud decision.")
-        st.write("• PCI DSS and GDPR badges are shown for compliance simulation.")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-elif page == "Features":
-    st.subheader("Core Features")
-    f1, f2, f3 = st.columns(3)
-    f1.markdown("<div class='panel'><h4>Real-Time Detection</h4><div class='helper'>AI-powered fraud detection in real time with explainable alerts and clear risk actions.</div></div>", unsafe_allow_html=True)
-    f2.markdown("<div class='panel'><h4>Batch Screening</h4><div class='helper'>Simulate and monitor thousands of transactions to demonstrate operational scale.</div></div>", unsafe_allow_html=True)
-    f3.markdown("<div class='panel'><h4>Explainable AI</h4><div class='helper'>Each alert explains why it was flagged using model score plus rule-based logic.</div></div>", unsafe_allow_html=True)
-
-    left, right = st.columns([1, 1])
-    with left:
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        st.subheader("Case Studies / Demo Scenarios")
-        st.dataframe(build_case_studies(), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    with right:
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        st.subheader("Future Scope")
-        st.write("• Blockchain-backed transaction provenance")
-        st.write("• Federated learning across institutions")
-        st.write("• Real-time device fingerprinting")
-        st.write("• Analyst co-pilot for auto-response recommendations")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-elif page == "Dashboard":
-    st.subheader("Fraud Dashboard")
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
     top_left, top_right = st.columns([1.05, 0.95])
     with top_left:
         st.markdown('<div class="panel">', unsafe_allow_html=True)
@@ -1171,13 +1084,8 @@ elif page == "Dashboard":
             st.write(f"• {reason}")
         st.markdown('</div>', unsafe_allow_html=True)
 
-<<<<<<< HEAD
 elif page == "📈 Reports & Trends":
     st.subheader("Analytics & Reports")
-=======
-elif page == "Reports":
-    st.subheader("Reports & Analytics")
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
     size = st.slider("Simulated transactions", 100, 5000, 1000, step=100)
     batch = generate_batch(size)
     scored = score_batch(batch)
@@ -1266,7 +1174,6 @@ elif page == "Reports":
     s3.metric("Alert Queue Health", "Stable")
     st.markdown('</div>', unsafe_allow_html=True)
 
-<<<<<<< HEAD
 elif page == "🛡️ Compliance":
     st.subheader("Compliance & Security")
     left, right = st.columns([0.9, 1.1])
@@ -1322,67 +1229,17 @@ elif page == "✉️ Contact":
     st.subheader("Contact & Feedback")
     st.markdown('<div class="panel">', unsafe_allow_html=True)
    
-=======
-elif page == "Project Info":
-    st.subheader("Project Info")
-    left, right = st.columns([1, 1])
-    with left:
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        st.subheader("Adaptive Rule Controls")
-        st.slider("High Amount Rule Weight", 0.00, 0.20, key="rule_amount_weight")
-        st.slider("Distance Rule Weight", 0.00, 0.20, key="rule_distance_weight")
-        st.slider("Low Device Trust Rule Weight", 0.00, 0.20, key="rule_device_weight")
-        st.slider("Velocity Rule Weight", 0.00, 0.20, key="rule_velocity_weight")
-        st.slider("International Rule Weight", 0.00, 0.20, key="rule_international_weight")
-        st.slider("Debit Card Rule Weight", 0.00, 0.10, key="rule_debit_weight")
-        st.caption("These controls simulate analyst-editable fraud rules.")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with right:
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        st.subheader("Team / Tech Stack")
-        st.write("• Project: FraudShield 360")
-        st.write("• Technologies: Python, Streamlit, Scikit-learn, Pandas, Geopy")
-        st.write("• Modules: Hybrid scoring, analytics, audit trail, reporting")
-        st.write("• Deployment-ready dashboard structure for major project presentation")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        st.subheader("Audit Trail")
-        if not st.session_state["audit_logs"]:
-            st.info("No audit events yet. Log a decision from Live Detection.")
-        else:
-            st.dataframe(pd.DataFrame(st.session_state["audit_logs"]), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.subheader("Security & Compliance Overview")
-    st.write("• Data masking/anonymization is applied through masked card displays.")
-    st.write("• Audit trail captures timestamp, customer, merchant, decision, and action.")
-    st.write("• Compliance badges simulate PCI DSS and GDPR readiness for presentation.")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-elif page == "Contact":
-    st.subheader("Contact & Feedback")
-    st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.write("Use this section to make the website feel like a real product portal.")
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
     contact_name = st.text_input("Name")
     contact_email = st.text_input("Email")
     contact_message = st.text_area("Feedback / Query")
     if st.button("Submit Feedback", use_container_width=True):
         if contact_name and contact_email and contact_message:
-<<<<<<< HEAD
             st.success("Feedback captured successfully.")
-=======
-            st.success("Feedback captured successfully for demo purposes.")
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
         else:
             st.warning("Please fill in all fields before submitting.")
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-<<<<<<< HEAD
 
 st.markdown(
     """
@@ -1393,12 +1250,6 @@ st.markdown(
             <span>GitHub / Docs</span>
         </div>
         <div style="margin-top:8px;">FraudShield 360 v1.0 • Major Project Edition</div>
-=======
-st.markdown(
-    """
-    <div style="text-align:center; color:#94a3b8; padding:16px 0 4px 0;">
-        FraudShield 360 • Advanced academic fraud detection platform for major project demo and presentation
->>>>>>> 07d0c6d88eef89dcad3ca59815133f801d415b19
     </div>
     """,
     unsafe_allow_html=True,
